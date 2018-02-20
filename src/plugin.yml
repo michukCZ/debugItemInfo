@@ -1,0 +1,10 @@
+name: DebugItemInfo
+main: cz.michuk.DebugItemInfo.main
+version: 1.0
+commands:
+    debugitem:
+        description: Get debug info about item in hand.
+permissions:
+    debugiteminfo.use:
+        description: Permission to use debugitem!
+        default: op
