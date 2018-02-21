@@ -12,7 +12,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,12 +21,11 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author MICHUK
  */
-public class main extends JavaPlugin implements Listener {
+public class main extends JavaPlugin {
 
     @Override
     public void onEnable() {
         getLogger().info("DebugItemInfo enabled!");
-
     }
 
     @Override
@@ -38,58 +36,63 @@ public class main extends JavaPlugin implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("debugitem")) {
-            if (sender instanceof Player) {
-                if (sender.hasPermission("debugiteminfo.use")) {
-                    Player p = (Player) sender;
-                    ItemMeta im = p.getInventory().getItemInMainHand().getItemMeta();
-                    Material itemType = p.getInventory().getItemInMainHand().getType();
-                    ItemStack itemStack = p.getInventory().getItemInMainHand();
-                    p.sendMessage(" ");
-                    if (im.hasDisplayName()) {
-                        p.sendMessage("Jméno: '" + im.getDisplayName().replaceAll("§", "&") + "'");
-                    }
-                    p.sendMessage("Material: " + itemType.toString());
-                    p.sendMessage("Amount: " + itemStack.getAmount());
-                    p.sendMessage("Max stack size: " + itemType.getMaxStackSize());
-                    p.sendMessage("Durability: " + itemStack.getDurability() + "/" + itemType.getMaxDurability());
-                    p.sendMessage("isUnbreakable: " + im.isUnbreakable());
-                    p.sendMessage("block: " + itemType.isBlock());
-                    p.sendMessage("isBurnable: " + itemType.isBurnable());
-                    p.sendMessage("isEdible: " + itemType.isEdible());
-                    p.sendMessage("isFlammable: " + itemType.isFlammable());
-                    p.sendMessage("isFuel: " + itemType.isFuel());
-                    p.sendMessage("isItem" + itemType.isItem());
-                    p.sendMessage("isOccluding: " + itemType.isOccluding());
-                    p.sendMessage("isRecord: " + itemType.isRecord());
-                    p.sendMessage("isSolid: " + itemType.isSolid());
-                    p.sendMessage("isTransparent: " + itemType.isTransparent());
-
-                    if (im.hasLore()) {
-                        List lore = im.getLore();
-                        p.sendMessage("---==== LORE ====---");
-                        for (int i = 0; i < lore.size(); i++) {
-                            p.sendMessage(i + 1 + ". lore: '" + lore.get(i).toString().replaceAll("§", "&") + "'");
-                        }
-
-                    }
-                    p.sendMessage("---==== ItemFlag ====---");
-                    for (ItemFlag iflag : ItemFlag.values()) {
-                        p.sendMessage(iflag + ": " + im.hasItemFlag(iflag));
-                    }
-                    if (im.hasEnchants()) {
-                        p.sendMessage("---==== ENCHANTY ====---");
-                        Map<Enchantment, Integer> enchants = im.getEnchants();
-                        for (Enchantment ench : enchants.keySet()) {
-                            p.sendMessage(ench.getName() + " " + enchants.get(ench));
-                        }
-                    }
-                } else {
-                    sender.sendMessage("§cNemáš oprávnění použít tento příkaz!");
-                }
-            } else {
-                sender.sendMessage("Příkaz je pouze pro hráče!");
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§cPříkaz je pouze pro hráče!");
+            return true;
+        }
+        Player player = (Player) sender;
+        if (sender.hasPermission("debugiteminfo.use")) {
+            ItemStack item = player.getEquipment().getItemInMainHand();
+            if(item == null){
+                player.sendMessage("§7Musíš mít nějaký item v ruce.");
+                return true;
             }
+            ItemMeta im = player.getInventory().getItemInMainHand().getItemMeta();
+            Material itemType = player.getInventory().getItemInMainHand().getType();
+            ItemStack itemStack = player.getInventory().getItemInMainHand();
+            player.sendMessage(" ");
+            if (im.hasDisplayName()) {
+                player.sendMessage("DisplayName: '" + im.getDisplayName().replaceAll("§", "&") + "'");
+            } else {
+                player.sendMessage("Nemá displayName");
+            }
+            player.sendMessage("Material: " + itemType.toString());
+            player.sendMessage("Amount: " + itemStack.getAmount());
+            player.sendMessage("Max stack size: " + itemType.getMaxStackSize());
+            player.sendMessage("Durability: " + itemStack.getDurability() + "/" + itemType.getMaxDurability());
+            player.sendMessage("isUnbreakable: " + im.isUnbreakable());
+            player.sendMessage("block: " + itemType.isBlock());
+            player.sendMessage("isBurnable: " + itemType.isBurnable());
+            player.sendMessage("isEdible: " + itemType.isEdible());
+            player.sendMessage("isFlammable: " + itemType.isFlammable());
+            player.sendMessage("isFuel: " + itemType.isFuel());
+            //p.sendMessage("isItem" + itemType.isItem()); //TODO library
+            player.sendMessage("isOccluding: " + itemType.isOccluding());
+            player.sendMessage("isRecord: " + itemType.isRecord());
+            player.sendMessage("isSolid: " + itemType.isSolid());
+            player.sendMessage("isTransparent: " + itemType.isTransparent());
+
+            if (im.hasLore()) {
+                List lore = im.getLore();
+                player.sendMessage("---==== LORE ====---");
+                for (int i = 0; i < lore.size(); i++) {
+                    player.sendMessage(i + 1 + ". lore: '" + lore.get(i).toString().replaceAll("§", "&") + "'");
+                }
+
+            }
+            player.sendMessage("---==== ItemFlag ====---");
+            for (ItemFlag iflag : ItemFlag.values()) {
+                player.sendMessage(iflag + ": " + im.hasItemFlag(iflag));
+            }
+            if (im.hasEnchants()) {
+                player.sendMessage("---==== ENCHANTY ====---");
+                Map<Enchantment, Integer> enchants = im.getEnchants();
+                for (Enchantment ench : enchants.keySet()) {
+                    player.sendMessage(ench.getName() + " " + enchants.get(ench));
+                }
+            }
+        } else {
+            sender.sendMessage("§cNemáš oprávnění použít tento příkaz!");
         }
         return false;
     }
